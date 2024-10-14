@@ -9,18 +9,20 @@
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js"></script>
 </head>
 <body>
     <div class="welcome-container">
         <h2>Welcome!</h2>
         <p id="welcomeMessage">You are logged in as <span id="userEmail"></span></p>
+        <p>Your IP Address: <span id="userIP"></span></p>
+        <p>Last Login: <span id="lastLoginTime"></span></p>
         <button id="logoutButton">Logout</button>
     </div>
 
     <script>
-        // Our Firebase Configuration (same as other pages)
-        const firebaseConfig = 
-        {
+        // Firebase configuration object (same as other pages)
+        const firebaseConfig = {
             apiKey: "AIzaSyC8Rj5IX_nepovIWf4WxS7Qq1XFE6oQdtU",
             authDomain: "comp3260.firebaseapp.com",
             databaseURL: "https://comp3260-default-rtdb.firebaseio.com",
@@ -34,14 +36,23 @@
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
 
-        // Firebase Authentication service reference
+        // Firebase Authentication and Realtime Database references
         const auth = firebase.auth();
+        const db = firebase.database();
 
         // Check if the user is authenticated and get their details
         auth.onAuthStateChanged(user => {
             if (user) {
                 // If user is authenticated, display their email
                 document.getElementById('userEmail').textContent = user.email;
+
+                // Fetch additional user details from the Realtime Database (IP address and last login time)
+                db.ref('users/' + user.uid).once('value').then(snapshot => {
+                    const userData = snapshot.val();
+                    // Display IP Address and Last Login Time
+                    document.getElementById('userIP').textContent = userData.ipAddress || 'Unknown';
+                    document.getElementById('lastLoginTime').textContent = new Date(userData.lastLogin).toLocaleString();
+                });
             } else {
                 // If no user is authenticated, redirect them to the login page
                 window.location.href = '/login.html';
