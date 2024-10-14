@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome</title>
+    <link rel="stylesheet" href="styles.css">
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js"></script>
+</head>
+<body>
+    <div class="welcome-container">
+        <h2>Welcome!</h2>
+        <p id="welcomeMessage">You are logged in as <span id="userEmail"></span></p>
+        <button id="logoutButton">Logout</button>
+    </div>
+
+    <script>
+        // Our Firebase Configuration (same as other pages)
+        const firebaseConfig = 
+        {
+            apiKey: "AIzaSyC8Rj5IX_nepovIWf4WxS7Qq1XFE6oQdtU",
+            authDomain: "comp3260.firebaseapp.com",
+            databaseURL: "https://comp3260-default-rtdb.firebaseio.com",
+            projectId: "comp3260",
+            storageBucket: "comp3260.appspot.com",
+            messagingSenderId: "907200378583",
+            appId: "1:907200378583:web:1eedbd0c2f20d42d4c6292",
+            measurementId: "G-Q898GNTYMM"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+
+        // Firebase Authentication service reference
+        const auth = firebase.auth();
+
+        // Check if the user is authenticated and get their details
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                // If user is authenticated, display their email
+                document.getElementById('userEmail').textContent = user.email;
+            } else {
+                // If no user is authenticated, redirect them to the login page
+                window.location.href = '/login.html';
+            }
+        });
+
+        // Logout function
+        document.getElementById('logoutButton').addEventListener('click', function() {
+            // Sign out the user using Firebase Authentication
+            auth.signOut().then(() => {
+                // Redirect to login page after logging out
+                window.location.href = '/login.html';
+            }).catch(error => {
+                console.error('Logout error:', error);
+            });
+        });
+    </script>
+</body>
+</html>

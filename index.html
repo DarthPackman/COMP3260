@@ -1,3 +1,4 @@
+<!-- Gavin Edwards & Hritwik Saini-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,25 +6,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
     <link rel="stylesheet" href="styles.css">
-    
-    <!-- Adding Firebase SDK -->
+
+    <!-- Firebase SDKs -->
+    <!-- Firebase core SDK (app) -->
     <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js"></script>
+    <!-- Firebase Authentication SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js"></script> <!-- Realtime Database SDK -->
+    <!-- Firebase Realtime Database SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js"></script>
 </head>
 <body>
     <div class="login-container">
         <h2>Login</h2>
+        <!-- Form for user login -->
         <form id="loginForm">
-            <input type="text" id="username" placeholder="Username" required>
+            <!-- Input field for the username (email) -->
+            <input type="text" id="Email" placeholder="Email" required>
+            <!-- Input field for the password -->
             <input type="password" id="password" placeholder="Password" required>
+            <!-- Button to submit the form -->
             <button type="submit">Login</button>
         </form>
+        <!-- Paragraph to display error messages if login fails -->
         <p id="errorMessage"></p>
+
+        <!-- Link to sign-up page for users without an account -->
+        <p>Don't have an account? <a href="/signUp.html">Sign up here</a></p>
     </div>
 
     <script>
-        // Our Firebase Configuration
+        // Firebase configuration object, containing the project's API key, domain, and other settings
         const firebaseConfig = 
         {
             apiKey: "AIzaSyC8Rj5IX_nepovIWf4WxS7Qq1XFE6oQdtU",
@@ -36,44 +48,54 @@
             measurementId: "G-Q898GNTYMM"
         };
 
-        // Initialize Firebase
+        // Initialize Firebase with the configuration object
         firebase.initializeApp(firebaseConfig);
 
+        // Firebase Authentication service instance
         const auth = firebase.auth();
-        const db = firebase.database(); // Initialize Realtime Database reference
+        // Firebase Realtime Database reference to interact with the database
+        const db = firebase.database();
 
-        // Login function
+        // Function to handle user login
         function loginUser(email, password) 
         {
+            // Attempt to log the user in using Firebase Authentication
             auth.signInWithEmailAndPassword(email, password)
                 .then(userCredential => 
                 {
-                    // Login successful
+                    // If login is successful, userCredential contains the authenticated user details
                     const user = userCredential.user;
                     console.log('Login successful:', user);
 
-                    // Write to Realtime Database
+                    // Write the user's email and login timestamp to the Realtime Database
+                    // We store this data under the 'users' node, with each user's data keyed by their unique user ID (uid)
                     db.ref('users/' + user.uid).set({
-                        email: user.email,
-                        lastLogin: Date.now()
+                        email: user.email, // Store the user's email
+                        lastLogin: Date.now() // Store the current login time
                     });
 
-                    window.location.href = '/success.html'; // Redirect to success page
+                    // After successful login, redirect the user to the success page
+                    window.location.href = '/loggedIn.html'; // Change this URL as per your actual success page
                 })
                 .catch(error => 
                 {
+                    // If login fails, log the error and display an error message
                     console.error('Login error:', error);
-                    document.getElementById('errorMessage').textContent = 'Invalid credentials';
+                    document.getElementById('errorMessage').textContent = 'Invalid credentials'; // Show error message to the user
                 });
         }
 
-        // Handle form submission
+        // Handle the form submission event
         document.getElementById('loginForm').addEventListener('submit', function(event) 
         {
+            // Prevent the form from submitting the default way (refreshing the page)
             event.preventDefault();
+            
+            // Get the email (username) and password values entered by the user
             const email = document.getElementById('username').value;
             const password = document.getElementById('password').value;
 
+            // Call the login function with the user's email and password
             loginUser(email, password);
         });
     </script>
