@@ -62,7 +62,6 @@
                     // Save the new user's data in the Realtime Database
                     db.ref('users/' + user.uid).set({
                         email: user.email,             // Store the user's email
-                        registrationDate: Date.now()   // Store the registration timestamp
                     });
 
                     // Redirect to the login page after successful registration
