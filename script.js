@@ -69,7 +69,7 @@ async function loginUser(email, password) {
 function logoutUser() {
     auth.signOut().then(() => {
         // Redirect to login page after logging out
-        window.location.href = '/login.html';
+        window.location.href = '/index.html';
     }).catch(error => {
         console.error('Logout error:', error);
     });
