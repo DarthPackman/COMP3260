@@ -1,20 +1,17 @@
-<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- Meta tags and title -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
 
-    <!-- Link to your CSS file -->
     <link rel="stylesheet" href="styles.css">
 
-    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-database-compat.js"></script>
 
+    <script src="script.js" defer></script>
 </head>
 <body>
     <div class="login-container">
@@ -24,106 +21,8 @@
             <input type="password" id="password" placeholder="Password" required>
             <button type="submit">Login</button>
         </form>
-        <!-- Error message element -->
         <p id="errorMessage"></p>
         <p>Don't have an account? <a href="/signUp.html">Sign up here</a></p>
     </div>
-
-    <!-- Your JavaScript code -->
-    <script>
-        // Firebase configuration object
-        const firebaseConfig = {
-            apiKey: "AIzaSyC8Rj5IX_nepovIWf4WxS7Qq1XFE6oQdtU",
-            authDomain: "comp3260.firebaseapp.com",
-            databaseURL: "https://comp3260-default-rtdb.firebaseio.com",
-            projectId: "comp3260",
-            storageBucket: "comp3260.appspot.com",
-            messagingSenderId: "907200378583",
-            appId: "1:907200378583:web:1eedbd0c2f20d42d4c6292",
-            measurementId: "G-Q898GNTYMM"
-        };
-
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-
-        // Firebase Authentication and Realtime Database references
-        const auth = firebase.auth();
-        const db = firebase.database();
-
-        // Function to get the user's IP address
-        async function fetchIPAddress() {
-            try {
-                const response = await fetch('https://api.ipify.org?format=json');
-                const data = await response.json();
-                return data.ip;
-            } catch (error) {
-                console.error('Error fetching IP address:', error);
-                return 'Unknown';
-            }
-        }
-
-        // Function to handle user login
-        async function loginUser(email, password) {
-            try {
-                const userCredential = await auth.signInWithEmailAndPassword(email, password);
-                const user = userCredential.user;
-                console.log('Login successful:', user);
-
-                // Fetch IP address
-                const ipAddress = await fetchIPAddress();
-
-                // Write the user's data to the Realtime Database
-                await db.ref('users/' + user.uid).set({
-                    email: user.email,
-                    ipAddress: ipAddress,
-                    lastLogin: Date.now()
-                });
-
-                // Redirect to the success page
-                window.location.href = '/loggedIn.html';
-            } catch (error) {
-                console.error('Login error:', error);
-
-                const errorCode = error.code;
-                let errorMessage = '';
-
-                switch (errorCode) {
-                    case 'auth/invalid-email':
-                        errorMessage = 'The email address is not valid.';
-                        break;
-                    case 'auth/user-disabled':
-                        errorMessage = 'This user account has been disabled.';
-                        break;
-                    case 'auth/user-not-found':
-                        errorMessage = 'No user found with this email.';
-                        break;
-                    case 'auth/wrong-password':
-                        errorMessage = 'Incorrect password. Please try again.';
-                        break;
-                    case 'auth/too-many-requests':
-                        errorMessage = 'Too many unsuccessful login attempts. Please try again later.';
-                        break;
-                    default:
-                        errorMessage = 'An unexpected error occurred: ' + error.message;
-                        break;
-                }
-
-                document.getElementById('errorMessage').textContent = errorMessage;
-            }
-        }
-
-        // Handle the form submission event
-        document.getElementById('loginForm').addEventListener('submit', function(event) {
-            event.preventDefault();
-
-            const email = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-
-            // Clear any previous error messages
-            document.getElementById('errorMessage').textContent = '';
-
-            loginUser(email, password);
-        });
-    </script>
 </body>
 </html>
