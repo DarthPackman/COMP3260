@@ -1,3 +1,4 @@
+/* ----------------------------------------------------------------------------- FIREBASE -------------------------------------------------------------------------- */
 /* Firebase Stuff */
 const firebaseConfig = {
     apiKey: "AIzaSyC8Rj5IX_nepovIWf4WxS7Qq1XFE6oQdtU",
@@ -16,6 +17,8 @@ firebase.initializeApp(firebaseConfig);
 
 const auth = firebase.auth();
 const db = firebase.database();
+
+/* ----------------------------------------------------------------------------- FUNCTIONS -------------------------------------------------------------------------- */
 
 /* Get IP Function */
 async function fetchIPAddress() {
@@ -40,7 +43,8 @@ async function signupUser(email, password) {
 
         await db.ref('users/' + user.uid).set({
             email: user.email,
-            ipAddress: ipAddress
+            ipAddress: ipAddress,
+            lastLogin: Date.now()
         });
 
         window.location.href = '/index.html';
@@ -57,13 +61,20 @@ async function loginUser(email, password) {
         const user = userCredential.user;
         console.log('Login successful:', user);
 
-        // Redirect to a welcome page or dashboard
+        const ipAddress = await fetchIPAddress();
+
+        await db.ref('users/' + user.uid).update({
+            ipAddress: ipAddress,
+            lastLogin: Date.now()
+        });
+
         window.location.href = '/loggedIn.html';
     } catch (error) {
         console.error('Login error:', error);
         document.getElementById('errorMessage').textContent = error.message;
     }
 }
+
 
 /* Log Out Function */
 function logoutUser() {
@@ -94,6 +105,8 @@ function displayUserData() {
         }
     });
 }
+
+/* ----------------------------------------------------------------------------- LISTENER -------------------------------------------------------------------------- */
 
 /* Page Listener */
 document.addEventListener("DOMContentLoaded", function() {
