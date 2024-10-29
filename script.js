@@ -9,6 +9,8 @@ const firebaseConfig = {
     measurementId: "G-Q898GNTYMM"
 };
 
+alert("script.js loaded");
+
 firebase.initializeApp(firebaseConfig);
 
 const auth = firebase.auth();
