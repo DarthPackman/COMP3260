@@ -1,3 +1,4 @@
+/* Firebase Stuff */
 const firebaseConfig = {
     apiKey: "AIzaSyC8Rj5IX_nepovIWf4WxS7Qq1XFE6oQdtU",
     authDomain: "comp3260.firebaseapp.com",
@@ -14,6 +15,7 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database();
 
+/* Get IP Function */
 async function fetchIPAddress() {
     try {
         const response = await fetch('https://api.ipify.org?format=json');
@@ -25,6 +27,7 @@ async function fetchIPAddress() {
     }
 }
 
+/* Sign Up Function */
 async function signupUser(email, password) {
     try {
         const userCredential = await auth.createUserWithEmailAndPassword(email, password);
@@ -45,7 +48,55 @@ async function signupUser(email, password) {
     }
 }
 
+/* Log In Function */
+async function loginUser(email, password) {
+    try {
+        const userCredential = await auth.signInWithEmailAndPassword(email, password);
+        const user = userCredential.user;
+        console.log('Login successful:', user);
+
+        // Redirect to a welcome page or dashboard
+        window.location.href = '/loggedIn.html';
+    } catch (error) {
+        console.error('Login error:', error);
+        document.getElementById('errorMessage').textContent = error.message;
+    }
+}
+
+/* Log Out Function */
+function logoutUser() {
+    auth.signOut().then(() => {
+        // Redirect to login page after logging out
+        window.location.href = '/login.html';
+    }).catch(error => {
+        console.error('Logout error:', error);
+    });
+}
+
+/* Dispaly Data Function */
+function displayUserData() {
+    auth.onAuthStateChanged(user => {
+        if (user) {
+            // Display the user email
+            document.getElementById('userEmail').textContent = user.email;
+
+            // Fetch additional user details from the Realtime Database (IP address and last login time)
+            db.ref('users/' + user.uid).once('value').then(snapshot => {
+                const userData = snapshot.val();
+                document.getElementById('userIP').textContent = userData.ipAddress || 'Unknown';
+                document.getElementById('lastLoginTime').textContent = new Date(userData.lastLogin).toLocaleString();
+            });
+        } else {
+            // Redirect to login if no user is authenticated
+            window.location.href = '/login.html';
+        }
+    });
+}
+
+/* Page Listener */
 document.addEventListener("DOMContentLoaded", function() {
+
+    /* Sign Up Stuff */
     const signupForm = document.getElementById('signupForm');
     if (signupForm) {
         signupForm.addEventListener('submit', function(event) {
@@ -64,6 +115,7 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
+    /* Log in Stuff */
     const loginForm = document.getElementById('loginForm');
     if (loginForm) {
         loginForm.addEventListener('submit', function(event) {
@@ -78,10 +130,12 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
+    /* Logged In Stuff */
     if (document.getElementById('welcomeMessage')) {
         displayUserData();
     }
 
+    /* Log Out Stuff */
     const logoutButton = document.getElementById('logoutButton');
     if (logoutButton) {
         logoutButton.addEventListener('click', logoutUser);
