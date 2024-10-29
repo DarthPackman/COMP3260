@@ -77,7 +77,6 @@ async function loginUser(email, password) {
 /* Log Out Function */
 function logoutUser() {
     auth.signOut().then(() => {
-        // Redirect to login page after logging out
         window.location.href = '/index.html';
     }).catch(error => {
         console.error('Logout error:', error);
@@ -88,17 +87,14 @@ function logoutUser() {
 function displayUserData() {
     auth.onAuthStateChanged(user => {
         if (user) {
-            // Display the user email
             document.getElementById('userEmail').textContent = user.email;
 
-            // Fetch additional user details from the Realtime Database (IP address and last login time)
             db.ref('users/' + user.uid).once('value').then(snapshot => {
                 const userData = snapshot.val();
                 document.getElementById('userIP').textContent = userData.ipAddress || 'Unknown';
                 document.getElementById('lastLoginTime').textContent = new Date(userData.lastLogin).toLocaleString();
             });
         } else {
-            // Redirect to login if no user is authenticated
             window.location.href = '/login.html';
         }
     });
