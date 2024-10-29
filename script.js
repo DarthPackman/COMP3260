@@ -10,7 +10,6 @@ const firebaseConfig = {
     measurementId: "G-Q898GNTYMM"
 };
 
-alert("script.js loaded");
 
 firebase.initializeApp(firebaseConfig);
 
@@ -69,7 +68,7 @@ async function loginUser(email, password) {
 function logoutUser() {
     auth.signOut().then(() => {
         // Redirect to login page after logging out
-        window.location.href = '/index.html';
+        window.location.href = '/login.html';
     }).catch(error => {
         console.error('Logout error:', error);
     });
