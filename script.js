@@ -111,7 +111,7 @@ async function IPAddressChangedLogOut() {
             const userRef = db.ref('users/' + user.uid);
             const snapshot = await userRef.once('value');
             const ipChangeCount = snapshot.val().IpChangeCount || 0;
-            if (ipChangeCount < 1)
+            if (ipChangeCount > 1)
                 lockAccount();
             await userRef.update({
                 ipAddress: currentIPAddress,
