@@ -55,18 +55,19 @@ async function signupUser(email, password) {
 /* Log In Function */
 async function loginUser(email, password) {
     try {
+        // alert("Logging in...");
         const userCredential = await auth.signInWithEmailAndPassword(email, password);
         const user = userCredential.user;
         console.log('Login successful:', user);
-
+        window.location.href = '/loggedIn.html';
         const ipAddress = await fetchIPAddress();
 
         await db.ref('users/' + user.uid).update({
             ipAddress: ipAddress,
             lastLogin: Date.now()
         });
-
-        window.location.href = '/loggedIn.html';
+        
+        
     } catch (error) {
         console.error('Login error:', error);
         document.getElementById('errorMessage').textContent = error.message;
@@ -104,6 +105,31 @@ function displayUserData() {
     });
 }
 
+
+// Open CAPTCHA modal
+function showCaptchaModal() {
+    document.getElementById("captchaModal").style.display = "flex";
+}
+
+// Close CAPTCHA modal
+function closeCaptchaModal() {
+    document.getElementById("captchaModal").style.display = "none";
+}
+
+// Validate CAPTCHA
+function validateCaptcha() {
+    const captchaInput = document.getElementById("captchaInput").value;
+    const captchaErrorMessage = document.getElementById("captchaErrorMessage");
+
+    if (captchaInput === "8") {
+        // alert("CAPTCHA passsssssed!");
+        closeCaptchaModal();
+        loginUser(document.getElementById('username').value, document.getElementById('password').value);
+    } else {
+        captchaErrorMessage.textContent = "Incorrect answer. Please try again.";
+    }
+}
+
 /* ----------------------------------------------------------------------------- LISTENER -------------------------------------------------------------------------- */
 
 /* Page Listener */
@@ -133,13 +159,12 @@ document.addEventListener("DOMContentLoaded", function() {
     if (loginForm) {
         loginForm.addEventListener('submit', function(event) {
             event.preventDefault();
-
             const email = document.getElementById('username').value;
             const password = document.getElementById('password').value;
 
             document.getElementById('errorMessage').textContent = ''; 
 
-            loginUser(email, password);
+            showCaptchaModal();
         });
     }
 
@@ -153,4 +178,8 @@ document.addEventListener("DOMContentLoaded", function() {
     if (logoutButton) {
         logoutButton.addEventListener('click', logoutUser);
     }
+
 });
+
+
+

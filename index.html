@@ -14,7 +14,7 @@
     <script src="script.js" defer></script>
 </head>
 <body>
-    <div class="login-container">
+    <div id="loginModal" class="login-container">
         <h2>Login</h2>
         <form id="loginForm">
             <input type="text" id="username" placeholder="Email" required>
@@ -24,5 +24,18 @@
         <p id="errorMessage"></p>
         <p>Don't have an account? <a href="/signUp.html">Sign up here</a></p>
     </div>
+
+    <div id="captchaModal" class="captcha-modal">
+        <div class="captcha-modal-content">
+            <span class="close-btn" onclick="closeCaptchaModal()">&times;</span>
+            <h2>Verify You're Human</h2>
+            <p>Please complete the CAPTCHA below:</p>
+            <label for="captchaInput">What is 5 + 3?</label>
+            <input type="text" id="captchaInput" placeholder="Enter answer" required>
+            <button onclick="validateCaptcha()">Submit</button>
+            <p id="captchaErrorMessage"></p>
+        </div>
+    </div>
+
 </body>
 </html>
