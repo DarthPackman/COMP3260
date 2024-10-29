@@ -1,4 +1,5 @@
 /* ----------------------------------------------------------------------------- FIREBASE -------------------------------------------------------------------------- */
+
 /* Firebase Stuff */
 const firebaseConfig = {
     apiKey: "AIzaSyC8Rj5IX_nepovIWf4WxS7Qq1XFE6oQdtU",
@@ -102,10 +103,35 @@ function displayUserData() {
 
 async function IPAddressChangedLogOut() {
     const currentIPAddress = await fetchIPAddress();
-    const previousIPAddress = document.getElementById('userIP').textContent;
-    if (currentIPAddress !== previousIPAddress) 
+    const user = auth.currentUser;
+
+    if (user) {
+        const previousIPAddress = document.getElementById('userIP').textContent;
+        if (currentIPAddress !== previousIPAddress) {
+            const userRef = db.ref('users/' + user.uid);
+            const snapshot = await userRef.once('value');
+            const ipChangeCount = snapshot.val().IpChangeCount || 0;
+            if (ipChangeCount < 1)
+                lockAccount();
+            await userRef.update({
+                ipAddress: currentIPAddress,
+                IpChangeCount: ipChangeCount + 1
+            });
+            logoutUser();
+        }
+    }
+}
+
+async function lockAccount() 
+{
+    const user = auth.currentUser;
+    if (user) 
     {
-        logoutUser();
+        const userRef = db.ref('users/' + user.uid);
+        const snapshot = await userRef.once('value');
+        await userRef.update({
+            accountLock: true
+        });
     }
 }
 
