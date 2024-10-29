@@ -115,6 +115,7 @@ async function IPAddressChangedLogOut() {
                 ipAddress: currentIPAddress,
                 IpChangeCount: ipChangeCount + 1
             });
+            //Locks at 3 for some reason
             if (ipChangeCount > 1)
                 lockAccount();
             logoutUser();
@@ -128,7 +129,6 @@ async function lockAccount()
     if (user) 
     {
         const userRef = db.ref('users/' + user.uid);
-        const snapshot = await userRef.once('value');
         await userRef.update({
             accountLock: true
         });
