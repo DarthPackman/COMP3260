@@ -1,4 +1,5 @@
 /* ----------------------------------------------------------------------------- FIREBASE -------------------------------------------------------------------------- */
+
 /* Firebase Stuff */
 const firebaseConfig = {
     apiKey: "AIzaSyC8Rj5IX_nepovIWf4WxS7Qq1XFE6oQdtU",
@@ -78,7 +79,6 @@ async function loginUser(email, password) {
 /* Log Out Function */
 function logoutUser() {
     auth.signOut().then(() => {
-        // Redirect to login page after logging out
         window.location.href = '/index.html';
     }).catch(error => {
         console.error('Logout error:', error);
@@ -89,17 +89,14 @@ function logoutUser() {
 function displayUserData() {
     auth.onAuthStateChanged(user => {
         if (user) {
-            // Display the user email
             document.getElementById('userEmail').textContent = user.email;
 
-            // Fetch additional user details from the Realtime Database (IP address and last login time)
             db.ref('users/' + user.uid).once('value').then(snapshot => {
                 const userData = snapshot.val();
                 document.getElementById('userIP').textContent = userData.ipAddress || 'Unknown';
                 document.getElementById('lastLoginTime').textContent = new Date(userData.lastLogin).toLocaleString();
             });
         } else {
-            // Redirect to login if no user is authenticated
             window.location.href = '/login.html';
         }
     });
@@ -127,6 +124,39 @@ function validateCaptcha() {
         loginUser(document.getElementById('username').value, document.getElementById('password').value);
     } else {
         captchaErrorMessage.textContent = "Incorrect answer. Please try again.";
+    }
+}
+async function IPAddressChangedLogOut() {
+    const currentIPAddress = await fetchIPAddress();
+    const user = auth.currentUser;
+
+    if (user) {
+        const previousIPAddress = document.getElementById('userIP').textContent;
+        if (currentIPAddress !== previousIPAddress) {
+            const userRef = db.ref('users/' + user.uid);
+            const snapshot = await userRef.once('value');
+            const ipChangeCount = snapshot.val().IpChangeCount || 0;
+            await userRef.update({
+                ipAddress: currentIPAddress,
+                IpChangeCount: ipChangeCount + 1
+            });
+            //Locks at 3 for some reason
+            if (ipChangeCount > 1)
+                lockAccount();
+            logoutUser();
+        }
+    }
+}
+
+async function lockAccount() 
+{
+    const user = auth.currentUser;
+    if (user) 
+    {
+        const userRef = db.ref('users/' + user.uid);
+        await userRef.update({
+            accountLock: true
+        });
     }
 }
 
@@ -171,6 +201,8 @@ document.addEventListener("DOMContentLoaded", function() {
     /* Logged In Stuff */
     if (document.getElementById('welcomeMessage')) {
         displayUserData();
+        document.addEventListener('keypress', IPAddressChangedLogOut);
+        document.addEventListener('click', IPAddressChangedLogOut);
     }
 
     /* Log Out Stuff */
@@ -180,6 +212,3 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
 });
-
-
-
