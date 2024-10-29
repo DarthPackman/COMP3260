@@ -1,16 +1,20 @@
-<!-- Gavin Edwards & Hritwik Saini-->
+<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Meta tags and title -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
+
+    <!-- Link to your CSS file -->
     <link rel="stylesheet" href="styles.css">
 
     <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-database-compat.js"></script>
+
 </head>
 <body>
     <div class="login-container">
@@ -20,10 +24,12 @@
             <input type="password" id="password" placeholder="Password" required>
             <button type="submit">Login</button>
         </form>
+        <!-- Error message element -->
         <p id="errorMessage"></p>
         <p>Don't have an account? <a href="/signUp.html">Sign up here</a></p>
     </div>
 
+    <!-- Your JavaScript code -->
     <script>
         // Firebase configuration object
         const firebaseConfig = {
@@ -67,26 +73,54 @@
                 const ipAddress = await fetchIPAddress();
 
                 // Write the user's data to the Realtime Database
-                db.ref('users/' + user.uid).set({
-                    email: user.email,           // Store the user's email
-                    ipAddress: ipAddress,        // Store the user's IP address
-                    lastLogin: Date.now()        // Store the current login timestamp
+                await db.ref('users/' + user.uid).set({
+                    email: user.email,
+                    ipAddress: ipAddress,
+                    lastLogin: Date.now()
                 });
 
                 // Redirect to the success page
                 window.location.href = '/loggedIn.html';
             } catch (error) {
                 console.error('Login error:', error);
-                document.getElementById('errorMessage').textContent = 'Invalid credentials';
+
+                const errorCode = error.code;
+                let errorMessage = '';
+
+                switch (errorCode) {
+                    case 'auth/invalid-email':
+                        errorMessage = 'The email address is not valid.';
+                        break;
+                    case 'auth/user-disabled':
+                        errorMessage = 'This user account has been disabled.';
+                        break;
+                    case 'auth/user-not-found':
+                        errorMessage = 'No user found with this email.';
+                        break;
+                    case 'auth/wrong-password':
+                        errorMessage = 'Incorrect password. Please try again.';
+                        break;
+                    case 'auth/too-many-requests':
+                        errorMessage = 'Too many unsuccessful login attempts. Please try again later.';
+                        break;
+                    default:
+                        errorMessage = 'An unexpected error occurred: ' + error.message;
+                        break;
+                }
+
+                document.getElementById('errorMessage').textContent = errorMessage;
             }
         }
 
         // Handle the form submission event
         document.getElementById('loginForm').addEventListener('submit', function(event) {
             event.preventDefault();
-            
+
             const email = document.getElementById('username').value;
             const password = document.getElementById('password').value;
+
+            // Clear any previous error messages
+            document.getElementById('errorMessage').textContent = '';
 
             loginUser(email, password);
         });
