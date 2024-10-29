@@ -104,6 +104,15 @@ function displayUserData() {
     });
 }
 
+async function IPAddressChangedLogOut() {
+    const currentIPAddress = await fetchIPAddress();
+    const previousIPAddress = document.getElementById('userIP').textContent;
+    if (currentIPAddress !== previousIPAddress) 
+    {
+        logoutUser();
+    }
+}
+
 /* ----------------------------------------------------------------------------- LISTENER -------------------------------------------------------------------------- */
 
 /* Page Listener */
@@ -146,6 +155,9 @@ document.addEventListener("DOMContentLoaded", function() {
     /* Logged In Stuff */
     if (document.getElementById('welcomeMessage')) {
         displayUserData();
+        IPAddressChangedLogOut();
+        document.addEventListener('keypress', IPAddressChangedLogOut);
+        document.addEventListener('click', IPAddressChangedLogOut);
     }
 
     /* Log Out Stuff */
