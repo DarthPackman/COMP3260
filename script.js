@@ -56,25 +56,34 @@ async function signupUser(email, password) {
 /* Log In Function */
 async function loginUser(email, password) {
     try {
-        // alert("Logging in...");
         const userCredential = await auth.signInWithEmailAndPassword(email, password);
         const user = userCredential.user;
         console.log('Login successful:', user);
-        window.location.href = '/loggedIn.html';
-        const ipAddress = await fetchIPAddress();
 
+        const snapshot = await db.ref('users/' + user.uid).once('value');
+        const userData = snapshot.val();
+
+        if (userData.accountLock) {
+            console.log('Account is locked.');
+            document.getElementById('errorMessage').textContent = 'Your account has been locked due to security concerns. Please contact support.';
+
+            await auth.signOut();
+            return;  
+        }
+
+        const ipAddress = await fetchIPAddress();
         await db.ref('users/' + user.uid).update({
             ipAddress: ipAddress,
             lastLogin: Date.now()
         });
-        
-        
+
+        window.location.href = '/loggedIn.html';
+
     } catch (error) {
         console.error('Login error:', error);
         document.getElementById('errorMessage').textContent = error.message;
     }
 }
-
 
 /* Log Out Function */
 function logoutUser() {
@@ -95,9 +104,11 @@ function displayUserData() {
                 const userData = snapshot.val();
                 document.getElementById('userIP').textContent = userData.ipAddress || 'Unknown';
                 document.getElementById('lastLoginTime').textContent = new Date(userData.lastLogin).toLocaleString();
+                document.getElementById('ipChange').textContent = userData.IpChangeCount || 'Unknown';
+                document.getElementById('accountLocked').textContent = userData.accountLock || 'Unknown';
             });
         } else {
-            window.location.href = '/login.html';
+            window.location.href = '/index.html';
         }
     });
 }
