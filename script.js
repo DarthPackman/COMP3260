@@ -60,6 +60,10 @@ async function loginUser(email, password) {
         const user = userCredential.user;
         console.log('Login successful:', user);
 
+        await db.ref('users/' + user.uid).update({
+            failedAttempts: 0
+        });
+
         const snapshot = await db.ref('users/' + user.uid).once('value');
         const userData = snapshot.val();
 
