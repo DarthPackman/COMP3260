@@ -123,16 +123,19 @@ function closeCaptchaModal() {
 }
 
 /* Validate CAPTCHA */
-function validateCaptcha() {
-    const captchaInput = document.getElementById("captchaInput").value;
+function validateCaptchaSelection() {
+    const selectedOption = document.querySelector('input[name="captchaOption"]:checked');
     const captchaErrorMessage = document.getElementById("captchaErrorMessage");
 
-    if (captchaInput === "8") {
-        // alert("CAPTCHA passsssssed!");
-        closeCaptchaModal();
-        loginUser(document.getElementById('username').value, document.getElementById('password').value);
+    if (selectedOption) {
+        if (selectedOption.value === "3") { 
+            closeCaptchaModal();
+            loginUser(document.getElementById('username').value, document.getElementById('password').value);
+        } else {
+            captchaErrorMessage.textContent = "Incorrect selection. Please try again.";
+        }
     } else {
-        captchaErrorMessage.textContent = "Incorrect answer. Please try again.";
+        captchaErrorMessage.textContent = "Please select an option.";
     }
 }
 
