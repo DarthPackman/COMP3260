@@ -12,7 +12,7 @@
 
     <script src="script.js" defer></script>
 </head>
-<body onload="evaluateUserBehavior();"> 
+<body onload="evaluateUserBehavior();">
     <div id="loginModal" class="login-container">
         <h2>Login</h2>
         <form id="loginForm">
@@ -22,7 +22,10 @@
         </form>
         <p id="errorMessage"></p>
         <p>Don't have an account? <a href="/signUp.html">Sign up here</a></p>
-        <p><button id="resetPasswordButton">Forgot Password?</button></p> 
+        <div class="button-container">
+            <button id="resetPasswordButton">Forgot Password?</button>
+            <button id="unlockAccountButton">Unlock Account</button>
+        </div>
     </div>
 
     <div id="captchaModal" class="captcha-modal">

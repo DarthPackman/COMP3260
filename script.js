@@ -201,20 +201,28 @@ async function resetPassword() {
         alert('Please enter your email address to reset your password.');
         return;
     }
-
     try {
         await auth.sendPasswordResetEmail(email);
         alert('Password reset email sent! Check your inbox.');
-        const user = auth.currentUser;
-        if (user) {
-            const userRef = db.ref('users/' + user.uid);
-            await userRef.update({
-                accountLock: false
-            });
-        }
     } catch (error) {
         console.error('Error sending password reset email:', error);
         alert('Error: ' + error.message);
+    }
+}
+
+/* Unlock Account Function */
+async function unlockAccount() {
+    const email = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+    resetPassword();
+    const userCredential = await auth.signInWithEmailAndPassword(email, password);
+    const user = userCredential.user;
+    if (user) {
+        const userRef = db.ref('users/' + user.uid);
+        await userRef.update({
+            accountLock: false,
+        });
+        await auth.signOut();
     }
 }
 
@@ -268,5 +276,11 @@ document.addEventListener("DOMContentLoaded", function() {
     const resetPasswordButton = document.getElementById('resetPasswordButton');
     if (resetPasswordButton) {
         resetPasswordButton.addEventListener('click', resetPassword);
+    }
+
+    /* Unlock Account Button */
+    const unlockAccountButton = document.getElementById('unlockAccountButton');
+    if (unlockAccountButton) {
+        unlockAccountButton.addEventListener('click', unlockAccount);
     }
 });
