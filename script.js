@@ -17,6 +17,14 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database();
 
+let userScore = 100;
+let mouseMoved = false;
+let keyPressed = false;
+const startTime = Date.now();
+
+document.addEventListener('mousemove', () => { mouseMoved = true; });
+document.addEventListener('keypress', () => { keyPressed = true; });
+
 /* ----------------------------------------------------------------------------- FUNCTIONS -------------------------------------------------------------------------- */
 
 /* Get IP Function */
@@ -138,6 +146,23 @@ function validateCaptchaSelection() {
         captchaErrorMessage.textContent = "Please select an option.";
     }
 }
+
+const evaluateUserBehavior = () => {
+    const timeSpent = Date.now() - startTime;
+    // Deduct score if there's no mouse movement
+    if (!mouseMoved) userScore -= 20;
+
+    // Deduct score if there's no keyboard usage
+    if (!keyPressed) userScore -= 20;
+
+    // Deduct score if time spent is too short
+    if (timeSpent < 3000) userScore -= 30;
+
+    // Trigger CAPTCHA if score is below threshold
+    if (userScore < 50) {
+        showCaptchaModal();
+    }
+};
 
 /* IP Change Function */
 async function IPAddressChangedLogOut() {

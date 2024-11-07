@@ -13,7 +13,7 @@
 
     <script src="script.js" defer></script>
 </head>
-<body>
+<body onload="evaluateUserBehavior();"> 
     <div id="loginModal" class="login-container">
         <h2>Login</h2>
         <form id="loginForm">
@@ -29,7 +29,7 @@
         <div class="captcha-modal-content">
             <span class="close-btn" onclick="closeCaptchaModal()">&times;</span>
             <h2>Verify You're Human</h2>
-            <p>Please select the correct image:</p>
+            <p>Please select the correct staircase:</p>
             <div class="captcha-images">
                 <div class="image-row">
                     <div class="image-container">
