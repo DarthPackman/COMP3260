@@ -68,14 +68,19 @@ async function loginUser(email, password) {
         const user = userCredential.user;
         console.log('Login successful:', user);
 
+        await db.ref('users/' + user.uid).update({
+            failedAttempts: 0
+        });
+
         const snapshot = await db.ref('users/' + user.uid).once('value');
         const userData = snapshot.val();
 
         if (userData.accountLock) {
-            await db.ref('users/' + user.uid).update({
-                accountLock: false
-            });
-            console.log('Account unlocked.');
+            console.log('Account is locked.');
+            document.getElementById('errorMessage').textContent = 'Your account has been locked due to security concerns. Please contact support.';
+
+            await auth.signOut();
+            return;  
         }
 
         const ipAddress = await fetchIPAddress();
@@ -85,6 +90,7 @@ async function loginUser(email, password) {
         });
 
         window.location.href = '/loggedIn.html';
+
     } catch (error) {
         console.error('Login error:', error);
         document.getElementById('errorMessage').textContent = error.message;
@@ -118,7 +124,6 @@ function displayUserData() {
         }
     });
 }
-
 
 /* Open CAPTCHA modal */
 function showCaptchaModal() {
@@ -206,6 +211,24 @@ async function lockAccount() {
     }
 }
 
+/* Reset Password Function */
+function resetPassword() {
+    const email = document.getElementById('username').value;
+    if (!email) {
+        alert('Please enter your email address to reset your password.');
+        return;
+    }
+
+    auth.sendPasswordResetEmail(email)
+        .then(() => {
+            alert('Password reset email sent! Check your inbox.');
+        })
+        .catch(error => {
+            console.error('Error sending password reset email:', error);
+            alert('Error: ' + error.message);
+        });
+}
+
 /* ----------------------------------------------------------------------------- LISTENER -------------------------------------------------------------------------- */
 
 /* Page Listener */
@@ -255,6 +278,12 @@ document.addEventListener("DOMContentLoaded", function() {
     const logoutButton = document.getElementById('logoutButton');
     if (logoutButton) {
         logoutButton.addEventListener('click', logoutUser);
+    }
+
+    /* Password Reset Stuff */
+    const resetPasswordButton = document.getElementById('resetPasswordButton');
+    if (resetPasswordButton) {
+        resetPasswordButton.addEventListener('click', resetPassword);
     }
 
 });
