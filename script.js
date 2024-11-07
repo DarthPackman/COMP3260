@@ -281,5 +281,4 @@ document.addEventListener("DOMContentLoaded", function() {
     if (resetPasswordButton) {
         resetPasswordButton.addEventListener('click', resetPassword);
     }
-
 });
