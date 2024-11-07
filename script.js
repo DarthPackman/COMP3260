@@ -149,16 +149,9 @@ function validateCaptchaSelection() {
 
 const evaluateUserBehavior = () => {
     const timeSpent = Date.now() - startTime;
-    // Deduct score if there's no mouse movement
     if (!mouseMoved) userScore -= 20;
-
-    // Deduct score if there's no keyboard usage
     if (!keyPressed) userScore -= 20;
-
-    // Deduct score if time spent is too short
     if (timeSpent < 3000) userScore -= 30;
-
-    // Trigger CAPTCHA if score is below threshold
     if (userScore < 50) {
         showCaptchaModal();
     }
