@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
-
     <link rel="stylesheet" href="styles.css">
 
     <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app-compat.js"></script>
@@ -23,6 +22,7 @@
         </form>
         <p id="errorMessage"></p>
         <p>Don't have an account? <a href="/signUp.html">Sign up here</a></p>
+        <p><button id="resetPasswordButton">Forgot Password?</button></p> <!-- Added Password Reset Button -->
     </div>
 
     <div id="captchaModal" class="captcha-modal">
@@ -62,8 +62,6 @@
             <p id="captchaErrorMessage"></p>
         </div>
     </div>
-    
-    
-
 </body>
 </html>
+
