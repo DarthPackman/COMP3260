@@ -60,19 +60,14 @@ async function loginUser(email, password) {
         const user = userCredential.user;
         console.log('Login successful:', user);
 
-        await db.ref('users/' + user.uid).update({
-            failedAttempts: 0
-        });
-
         const snapshot = await db.ref('users/' + user.uid).once('value');
         const userData = snapshot.val();
 
         if (userData.accountLock) {
-            console.log('Account is locked.');
-            document.getElementById('errorMessage').textContent = 'Your account has been locked due to security concerns. Please contact support.';
-
-            await auth.signOut();
-            return;  
+            await db.ref('users/' + user.uid).update({
+                accountLock: false
+            });
+            console.log('Account unlocked.');
         }
 
         const ipAddress = await fetchIPAddress();
@@ -82,7 +77,6 @@ async function loginUser(email, password) {
         });
 
         window.location.href = '/loggedIn.html';
-
     } catch (error) {
         console.error('Login error:', error);
         document.getElementById('errorMessage').textContent = error.message;
@@ -98,7 +92,7 @@ function logoutUser() {
     });
 }
 
-/* Dispaly Data Function */
+/* Display Data Function */
 function displayUserData() {
     auth.onAuthStateChanged(user => {
         if (user) {
@@ -118,17 +112,17 @@ function displayUserData() {
 }
 
 
-// Open CAPTCHA modal
+/* Open CAPTCHA modal */
 function showCaptchaModal() {
     document.getElementById("captchaModal").style.display = "flex";
 }
 
-// Close CAPTCHA modal
+/* Close CAPTCHA modal */
 function closeCaptchaModal() {
     document.getElementById("captchaModal").style.display = "none";
 }
 
-// Validate CAPTCHA
+/* Validate CAPTCHA */
 function validateCaptchaSelection() {
     const selectedOption = document.querySelector('input[name="captchaOption"]:checked');
     const captchaErrorMessage = document.getElementById("captchaErrorMessage");
@@ -145,6 +139,7 @@ function validateCaptchaSelection() {
     }
 }
 
+/* IP Change Function */
 async function IPAddressChangedLogOut() {
     const currentIPAddress = await fetchIPAddress();
     const user = auth.currentUser;
@@ -167,15 +162,22 @@ async function IPAddressChangedLogOut() {
     }
 }
 
-async function lockAccount() 
-{
+/* Lock Account and Send Password Reset Email Function */
+async function lockAccount() {
     const user = auth.currentUser;
-    if (user) 
-    {
+    if (user) {
         const userRef = db.ref('users/' + user.uid);
         await userRef.update({
             accountLock: true
         });
+
+        try {
+            await auth.sendPasswordResetEmail(user.email);
+            alert('Your account has been locked for security reasons. A password reset email has been sent to your email address.');
+        } catch (error) {
+            console.error('Error sending password reset email:', error);
+            alert('Error: ' + error.message);
+        }
     }
 }
 
