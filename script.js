@@ -67,18 +67,12 @@ async function loginUser(email, password) {
         const userCredential = await auth.signInWithEmailAndPassword(email, password);
         const user = userCredential.user;
         console.log('Login successful:', user);
-
-        await db.ref('users/' + user.uid).update({
-            failedAttempts: 0
-        });
-
         const snapshot = await db.ref('users/' + user.uid).once('value');
         const userData = snapshot.val();
 
         if (userData.accountLock) {
             console.log('Account is locked.');
-            document.getElementById('errorMessage').textContent = 'Your account has been locked due to security concerns. Please contact support.';
-
+            document.getElementById('errorMessage').textContent = 'Your account has been locked due to security concerns. Please reset your password.';
             await auth.signOut();
             return;  
         }
@@ -86,7 +80,8 @@ async function loginUser(email, password) {
         const ipAddress = await fetchIPAddress();
         await db.ref('users/' + user.uid).update({
             ipAddress: ipAddress,
-            lastLogin: Date.now()
+            lastLogin: Date.now(),
+            failedAttempts: 0
         });
 
         window.location.href = '/loggedIn.html';
@@ -194,35 +189,33 @@ async function lockAccount() {
     if (user) {
         const userRef = db.ref('users/' + user.uid);
         await userRef.update({
-            accountLock: true
+            accountLock: true,
         });
-
-        try {
-            await auth.sendPasswordResetEmail(user.email);
-            alert('Your account has been locked for security reasons. A password reset email has been sent to your email address.');
-        } catch (error) {
-            console.error('Error sending password reset email:', error);
-            alert('Error: ' + error.message);
-        }
     }
 }
 
 /* Reset Password Function */
-function resetPassword() {
+async function resetPassword() {
     const email = document.getElementById('username').value;
     if (!email) {
         alert('Please enter your email address to reset your password.');
         return;
     }
 
-    auth.sendPasswordResetEmail(email)
-        .then(() => {
-            alert('Password reset email sent! Check your inbox.');
-        })
-        .catch(error => {
-            console.error('Error sending password reset email:', error);
-            alert('Error: ' + error.message);
-        });
+    try {
+        await auth.sendPasswordResetEmail(email);
+        alert('Password reset email sent! Check your inbox.');
+        const user = auth.currentUser;
+        if (user) {
+            const userRef = db.ref('users/' + user.uid);
+            await userRef.update({
+                accountLock: false
+            });
+        }
+    } catch (error) {
+        console.error('Error sending password reset email:', error);
+        alert('Error: ' + error.message);
+    }
 }
 
 /* ----------------------------------------------------------------------------- LISTENER -------------------------------------------------------------------------- */
@@ -235,16 +228,13 @@ document.addEventListener("DOMContentLoaded", function() {
     if (signupForm) {
         signupForm.addEventListener('submit', function(event) {
             event.preventDefault();
-
             const email = document.getElementById('username').value;
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
-
             if (password !== confirmPassword) {
                 document.getElementById('errorMessage').textContent = 'Passwords do not match!';
                 return;
             }
-
             signupUser(email, password);
         });
     }
@@ -256,9 +246,7 @@ document.addEventListener("DOMContentLoaded", function() {
             event.preventDefault();
             const email = document.getElementById('username').value;
             const password = document.getElementById('password').value;
-
             document.getElementById('errorMessage').textContent = ''; 
-
             showCaptchaModal();
         });
     }
