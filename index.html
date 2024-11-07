@@ -29,13 +29,41 @@
         <div class="captcha-modal-content">
             <span class="close-btn" onclick="closeCaptchaModal()">&times;</span>
             <h2>Verify You're Human</h2>
-            <p>Please complete the CAPTCHA below:</p>
-            <label for="captchaInput">What is 5 + 3?</label>
-            <input type="text" id="captchaInput" placeholder="Enter answer" required>
-            <button onclick="validateCaptcha()">Submit</button>
+            <p>Please select the correct image:</p>
+            <div class="captcha-images">
+                <div class="image-row">
+                    <div class="image-container">
+                        <img src="image1.jpg" alt="Option 1" class="captcha-image">
+                        <span class="image-number">1</span>
+                    </div>
+                    <div class="image-container">
+                        <img src="image2.jpg" alt="Option 2" class="captcha-image">
+                        <span class="image-number">2</span>
+                    </div>
+                </div>
+                <div class="image-row">
+                    <div class="image-container">
+                        <img src="image3.jpg" alt="Option 3" class="captcha-image">
+                        <span class="image-number">3</span>
+                    </div>
+                    <div class="image-container">
+                        <img src="image4.jpg" alt="Option 4" class="captcha-image">
+                        <span class="image-number">4</span>
+                    </div>
+                </div>
+            </div>
+            <div class="captcha-options">
+                <label><input type="radio" name="captchaOption" value="1"> Option 1</label>
+                <label><input type="radio" name="captchaOption" value="2"> Option 2</label>
+                <label><input type="radio" name="captchaOption" value="3"> Option 3</label>
+                <label><input type="radio" name="captchaOption" value="4"> Option 4</label>
+            </div>
+            <button onclick="validateCaptchaSelection()">Submit</button>
             <p id="captchaErrorMessage"></p>
         </div>
     </div>
+    
+    
 
 </body>
 </html>
