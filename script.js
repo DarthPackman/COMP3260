@@ -1,6 +1,5 @@
-/* ----------------------------------------------------------------------------- FIREBASE -------------------------------------------------------------------------- */
+/* ----------------------------------------------------------------------------- FIREBASE SETUP -------------------------------------------------------------------------- */
 
-/* Firebase Stuff */
 const firebaseConfig = {
     apiKey: "AIzaSyC8Rj5IX_nepovIWf4WxS7Qq1XFE6oQdtU",
     authDomain: "comp3260.firebaseapp.com",
@@ -17,9 +16,18 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database();
 
-/* ----------------------------------------------------------------------------- FUNCTIONS -------------------------------------------------------------------------- */
+/* ----------------------------------------------------------------------------- GLOBAL VARIABLES ----------------------------------------------------------------------- */
 
-/* Get IP Function */
+let userScore = 100;
+let mouseMoved = false;
+let keyPressed = false;
+let captchaTrigger = false;
+const startTime = Date.now();
+let idleTime = 0;
+const maxIdleTime = 5;
+
+/* ----------------------------------------------------------------------------- UTILITY FUNCTIONS --------------------------------------------------------------------- */
+
 async function fetchIPAddress() {
     try {
         const response = await fetch('https://api.ipify.org?format=json');
@@ -31,21 +39,28 @@ async function fetchIPAddress() {
     }
 }
 
+function resetIdleTimer() {
+    idleTime = 0;
+}
+
+/* ----------------------------------------------------------------------------- AUTHENTICATION FUNCTIONS ------------------------------------------------------------- */
+
+/* ----------------------------------------------------------------------------- AUTHENTICATION FUNCTIONS ------------------------------------------------------------- */
+
 /* Sign Up Function */
 async function signupUser(email, password) {
     try {
         const userCredential = await auth.createUserWithEmailAndPassword(email, password);
         const user = userCredential.user;
         console.log('User created successfully:', user);
-
         const ipAddress = await fetchIPAddress();
-
         await db.ref('users/' + user.uid).set({
             email: user.email,
             ipAddress: ipAddress,
-            lastLogin: Date.now()
+            lastLogin: Date.now(),
+            captchaTriggerCount: 0, 
+            ipChangeCount: 0
         });
-
         window.location.href = '/index.html';
     } catch (error) {
         console.error('Sign-up error:', error);
@@ -59,8 +74,21 @@ async function loginUser(email, password) {
         const userCredential = await auth.signInWithEmailAndPassword(email, password);
         const user = userCredential.user;
         console.log('Login successful:', user);
-        const snapshot = await db.ref('users/' + user.uid).once('value');
+        
+        const userRef = db.ref('users/' + user.uid);
+        const snapshot = await userRef.once('value');
         const userData = snapshot.val();
+        const ipAddress = await fetchIPAddress();
+        let captchaTriggerCount = userData.captchaTriggerCount || 0;
+        
+        if (captchaTrigger) { 
+            captchaTriggerCount += 1;
+            if (captchaTriggerCount >= 3) {
+                await lockAccount();
+                await auth.signOut();
+                return;
+            }
+        }
 
         if (userData.accountLock) {
             console.log('Account is locked.');
@@ -69,16 +97,12 @@ async function loginUser(email, password) {
             return;  
         }
 
-        const ipAddress = await fetchIPAddress();
-        await db.ref('users/' + user.uid).update({
+        await userRef.update({
             ipAddress: ipAddress,
             lastLogin: Date.now(),
-            failedAttempts: 0,
-            accountLock: false,
+            captchaTriggerCount: captchaTriggerCount
         });
-
         window.location.href = '/loggedIn.html';
-
     } catch (error) {
         console.error('Login error:', error);
         document.getElementById('errorMessage').textContent = error.message;
@@ -99,11 +123,12 @@ function displayUserData() {
     auth.onAuthStateChanged(user => {
         if (user) {
             document.getElementById('userEmail').textContent = user.email;
-
             db.ref('users/' + user.uid).once('value').then(snapshot => {
                 const userData = snapshot.val();
                 document.getElementById('userIP').textContent = userData.ipAddress || 'Unknown';
                 document.getElementById('lastLoginTime').textContent = new Date(userData.lastLogin).toLocaleString();
+                document.getElementById('captchaTriggerCount').textContent = userData.captchaTriggerCount || 0;
+                document.getElementById('ipChangeCount').textContent = userData.ipChangeCount || 0;
             });
         } else {
             window.location.href = '/index.html';
@@ -111,17 +136,26 @@ function displayUserData() {
     });
 }
 
-/* Open CAPTCHA modal */
+/* ----------------------------------------------------------------------------- SECURITY FUNCTIONS ------------------------------------------------------------------- */
+
+function evaluateUserBehavior() {
+    const timeSpent = Date.now() - startTime;
+    if (!mouseMoved) userScore -= 25;
+    if (!keyPressed) userScore -= 25;
+    if (timeSpent < 3000) userScore -= 25;
+    if (userScore <= 50) {
+        captchaTrigger = true;
+    }
+}
+
 function showCaptchaModal() {
     document.getElementById("captchaModal").style.display = "flex";
 }
 
-/* Close CAPTCHA modal */
 function closeCaptchaModal() {
     document.getElementById("captchaModal").style.display = "none";
 }
 
-/* Validate CAPTCHA */
 function validateCaptchaSelection() {
     const selectedOption = document.querySelector('input[name="captchaOption"]:checked');
     const captchaErrorMessage = document.getElementById("captchaErrorMessage");
@@ -138,90 +172,9 @@ function validateCaptchaSelection() {
     }
 }
 
-
-
-const images1 = [
-    { src: 'image1.jpg', correct: false },
-    { src: 'image2.jpg', correct: false },
-    { src: 'image3.jpg', correct: true }, 
-    { src: 'image4.jpg', correct: false }
-];
-
-const images2 = [
-    { src: 'image5.jpg', correct: false },
-    { src: 'image6.jpg', correct: false },
-    { src: 'image7.jpg', correct: false }, 
-    { src: 'image8.jpg', correct: true } 
-];
-
-const images3 = [
-    { src: 'image9.jpg', correct: true }, 
-    { src: 'image10.jpg', correct: false },
-    { src: 'image11.jpg', correct: false }, 
-    { src: 'image12.jpg', correct: false } 
-];
-
-
-const imgStack = [images1, images2, images3];
-randomIndex = Math.floor(Math.random() * imgStack.length);
-randomImages = imgStack[randomIndex];
-function moveCorrectImage(randomImages) {
-    const ImageIndex = 0;
-    const randomIndex = Math.floor(Math.random() * randomImages.length);
-
-    // Swap the correct image with the random index
-    [randomImages[ImageIndex], randomImages[randomIndex]] = [randomImages[randomIndex], randomImages[ImageIndex]];
-
-    return randomImages;
-}
-
-function loadImages() {
-    // Shuffle the correct image's position
-    const updatedImages = moveCorrectImage(randomImages);
-
-    // Get all image elements in the modal
-    const imageElements = document.querySelectorAll('.image-container img');
-    const optionLabels = document.querySelectorAll('.captcha-options input');
-
-    // Load the images and update radio button values
-    imageElements.forEach((imgElement, index) => {
-        imgElement.src = updatedImages[index].src;
-        imgElement.dataset.correct = updatedImages[index].correct; // Store whether this is the correct image
-    });
-
-    // Update the radio buttons and mark the correct option
-    optionLabels.forEach((input, index) => {
-        input.value = index + 1;
-        if (updatedImages[index].correct) {
-            input.dataset.correct = "true"; // Mark the correct radio button
-        } else {
-            input.removeAttribute('data-correct');
-        }
-    });
-}
-
-loadImages();
-
-
-
-const evaluateUserBehavior = () => {
-    const timeSpent = Date.now() - startTime;
-    if (!mouseMoved) userScore -= 20;
-    // Deduct score if there's no keyboard usage
-    if (!keyPressed) userScore -= 20;
-    // Deduct score if time spent is too short
-    if (timeSpent < 3000) userScore -= 30;
-    // Trigger CAPTCHA if score is below threshold
-    if (userScore < 50) {
-        showCaptchaModal();
-    }
-};
-
-/* IP Change Function */
 async function IPAddressChangedLogOut() {
     const currentIPAddress = await fetchIPAddress();
     const user = auth.currentUser;
-
     if (user) {
         const previousIPAddress = document.getElementById('userIP').textContent;
         if (currentIPAddress !== previousIPAddress) {
@@ -230,28 +183,26 @@ async function IPAddressChangedLogOut() {
             const ipChangeCount = snapshot.val().IpChangeCount || 0;
             await userRef.update({
                 ipAddress: currentIPAddress,
-                IpChangeCount: ipChangeCount + 1
+                ipChangeCount: ipChangeCount + 1
             });
-            
-            if (ipChangeCount > 1)
-                lockAccount();
+            if (ipChangeCount > 3) lockAccount();
             logoutUser();
         }
     }
 }
 
-/* Lock Account and Send Password Reset Email Function */
 async function lockAccount() {
     const user = auth.currentUser;
     if (user) {
         const userRef = db.ref('users/' + user.uid);
         await userRef.update({
             accountLock: true,
+            ipChangeCount: 0,
+            captchaTriggerCount: 0
         });
     }
 }
 
-/* Reset Password Function */
 async function resetPassword() {
     const email = document.getElementById('username').value;
     if (!email) {
@@ -267,7 +218,6 @@ async function resetPassword() {
     }
 }
 
-/* Unlock Account Function */
 async function unlockAccount() {
     const email = document.getElementById('username').value;
     const password = document.getElementById('password').value;
@@ -287,28 +237,63 @@ async function unlockAccount() {
     }
 }
 
-/* ----------------------------------------------------------------------------- LISTENER -------------------------------------------------------------------------- */
+/* ----------------------------------------------------------------------------- CAPTCHA FUNCTIONS ------------------------------------------------------------------- */
 
-let userScore = 100;
-let mouseMoved = false;
-let keyPressed = false;
-const startTime = Date.now();
+const images1 = [
+    { src: 'image1.jpg', correct: false },
+    { src: 'image2.jpg', correct: false },
+    { src: 'image3.jpg', correct: true },
+    { src: 'image4.jpg', correct: false }
+];
+const images2 = [
+    { src: 'image5.jpg', correct: false },
+    { src: 'image6.jpg', correct: false },
+    { src: 'image7.jpg', correct: false },
+    { src: 'image8.jpg', correct: true }
+];
+const images3 = [
+    { src: 'image9.jpg', correct: true },
+    { src: 'image10.jpg', correct: false },
+    { src: 'image11.jpg', correct: false },
+    { src: 'image12.jpg', correct: false }
+];
+const imgStack = [images1, images2, images3];
+let randomIndex = Math.floor(Math.random() * imgStack.length);
+let randomImages = imgStack[randomIndex];
+
+function moveCorrectImage(images) {
+    const ImageIndex = 0;
+    const randomIdx = Math.floor(Math.random() * images.length);
+    [images[ImageIndex], images[randomIdx]] = [images[randomIdx], images[ImageIndex]];
+    return images;
+}
+
+function loadImages() {
+    const updatedImages = moveCorrectImage(randomImages);
+    const imageElements = document.querySelectorAll('.image-container img');
+    const optionLabels = document.querySelectorAll('.captcha-options input');
+
+    imageElements.forEach((imgElement, index) => {
+        imgElement.src = updatedImages[index].src;
+        imgElement.dataset.correct = updatedImages[index].correct;
+    });
+    optionLabels.forEach((input, index) => {
+        input.value = index + 1;
+        if (updatedImages[index].correct) {
+            input.dataset.correct = "true";
+        } else {
+            input.removeAttribute('data-correct');
+        }
+    });
+}
+loadImages();
+
+/* ----------------------------------------------------------------------------- EVENT LISTENERS -------------------------------------------------------------------- */
 
 document.addEventListener('mousemove', () => { mouseMoved = true; });
 document.addEventListener('keypress', () => { keyPressed = true; });
 
-/* Idle Timer Variables */
-let idleTime = 0; // Time in minutes
-const maxIdleTime = 5; // Maximum idle time allowed (in minutes)
-
-function resetIdleTimer() {
-    idleTime = 0; // Reset the idle timer whenever activity is detected
-}
-
-/* Page Listener */
 document.addEventListener("DOMContentLoaded", function() {
-
-    /* Sign Up Stuff */
     const signupForm = document.getElementById('signupForm');
     if (signupForm) {
         signupForm.addEventListener('submit', function(event) {
@@ -324,19 +309,22 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-    /* Log in Stuff */
     const loginForm = document.getElementById('loginForm');
     if (loginForm) {
         loginForm.addEventListener('submit', function(event) {
             event.preventDefault();
             const email = document.getElementById('username').value;
             const password = document.getElementById('password').value;
-            document.getElementById('errorMessage').textContent = ''; 
-            showCaptchaModal();
+            document.getElementById('errorMessage').textContent = '';
+            evaluateUserBehavior();
+            if (captchaTrigger) {
+                showCaptchaModal();
+            } else {
+                loginUser(email, password);
+            }
         });
     }
 
-    /* Logged In Stuff */
     if (document.getElementById('welcomeMessage')) {
         displayUserData();
         document.addEventListener('keypress', IPAddressChangedLogOut);
@@ -344,25 +332,22 @@ document.addEventListener("DOMContentLoaded", function() {
         document.addEventListener('mousemove', resetIdleTimer);
         document.addEventListener('keypress', resetIdleTimer);
         document.addEventListener('click', resetIdleTimer);
-        document.addEventListener('scroll', resetIdleTimer);    
+        document.addEventListener('scroll', resetIdleTimer);
         if (idleTime >= maxIdleTime) {
             logoutUser();
         }
     }
 
-    /* Log Out Stuff */
     const logoutButton = document.getElementById('logoutButton');
     if (logoutButton) {
         logoutButton.addEventListener('click', logoutUser);
     }
 
-    /* Password Reset Stuff */
     const resetPasswordButton = document.getElementById('resetPasswordButton');
     if (resetPasswordButton) {
         resetPasswordButton.addEventListener('click', resetPassword);
     }
 
-    /* Unlock Account Button */
     const unlockAccountButton = document.getElementById('unlockAccountButton');
     if (unlockAccountButton) {
         unlockAccountButton.addEventListener('click', unlockAccount);
