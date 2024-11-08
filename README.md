@@ -1,7 +1,3 @@
-Here's a draft of your README file:
-
----
-
 # COMP3260: Behavioral-Based Authentication and Anomaly Detection
 
 This project implements a behavioral-based authentication system with anomaly detection for enhanced security. The goal is to protect user accounts from brute force and automated attacks using behavioral metrics such as typing speed, mouse movement, and session interactions.
