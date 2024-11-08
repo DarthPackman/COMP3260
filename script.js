@@ -81,7 +81,9 @@ async function loginUser(email, password) {
         await db.ref('users/' + user.uid).update({
             ipAddress: ipAddress,
             lastLogin: Date.now(),
-            failedAttempts: 0
+            failedAttempts: 0,
+            accountLock: false,
+            userScore: userScore
         });
 
         window.location.href = '/loggedIn.html';
@@ -214,6 +216,10 @@ async function resetPassword() {
 async function unlockAccount() {
     const email = document.getElementById('username').value;
     const password = document.getElementById('password').value;
+    if (!email || !password) {
+        alert('Please enter your email and password to unlock your account.');
+        return;
+    }
     resetPassword();
     const userCredential = await auth.signInWithEmailAndPassword(email, password);
     const user = userCredential.user;
