@@ -63,7 +63,7 @@ const firebaseConfig = {
 
 ### Account Locking
 - **CAPTCHA Trigger Count**: If a user fails the CAPTCHA 3 times, their account is locked.
-- **IP Change Count**: If a user's IP address changes more than once, the account is also locked.
+- **IP Change Count**: If a user's IP address changes 3 times, the account is also locked.
 
 ## Security Functions
 - **Password Reset**: Users can reset their password if they forget it or if their account is locked.
