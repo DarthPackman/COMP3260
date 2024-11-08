@@ -67,13 +67,3 @@ This project implements a behavioral-based authentication system with anomaly de
 ## Authors
 - **Gavin Edwards**
 - **Hritwik Saini**
-
-## License
-This project is licensed under the MIT License. See `LICENSE` for more details.
-
-## Contact
-For any questions or issues, please reach out to [Your Email] or create an issue on the repository.
-
----
-
-Let me know if you need any edits or additional sections in your README file!
