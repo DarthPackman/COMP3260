@@ -17,14 +17,6 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database();
 
-let userScore = 100;
-let mouseMoved = false;
-let keyPressed = false;
-const startTime = Date.now();
-
-document.addEventListener('mousemove', () => { mouseMoved = true; });
-document.addEventListener('keypress', () => { keyPressed = true; });
-
 /* ----------------------------------------------------------------------------- FUNCTIONS -------------------------------------------------------------------------- */
 
 /* Get IP Function */
@@ -83,7 +75,6 @@ async function loginUser(email, password) {
             lastLogin: Date.now(),
             failedAttempts: 0,
             accountLock: false,
-            userScore: userScore
         });
 
         window.location.href = '/loggedIn.html';
@@ -113,8 +104,6 @@ function displayUserData() {
                 const userData = snapshot.val();
                 document.getElementById('userIP').textContent = userData.ipAddress || 'Unknown';
                 document.getElementById('lastLoginTime').textContent = new Date(userData.lastLogin).toLocaleString();
-                document.getElementById('ipChange').textContent = userData.IpChangeCount || 'Unknown';
-                document.getElementById('accountLocked').textContent = userData.accountLock || 'Unknown';
             });
         } else {
             window.location.href = '/index.html';
@@ -234,6 +223,22 @@ async function unlockAccount() {
 
 /* ----------------------------------------------------------------------------- LISTENER -------------------------------------------------------------------------- */
 
+let userScore = 100;
+let mouseMoved = false;
+let keyPressed = false;
+const startTime = Date.now();
+
+document.addEventListener('mousemove', () => { mouseMoved = true; });
+document.addEventListener('keypress', () => { keyPressed = true; });
+
+/* Idle Timer Variables */
+let idleTime = 0; // Time in minutes
+const maxIdleTime = 5; // Maximum idle time allowed (in minutes)
+
+function resetIdleTimer() {
+    idleTime = 0; // Reset the idle timer whenever activity is detected
+}
+
 /* Page Listener */
 document.addEventListener("DOMContentLoaded", function() {
 
@@ -270,6 +275,13 @@ document.addEventListener("DOMContentLoaded", function() {
         displayUserData();
         document.addEventListener('keypress', IPAddressChangedLogOut);
         document.addEventListener('click', IPAddressChangedLogOut);
+        document.addEventListener('mousemove', resetIdleTimer);
+        document.addEventListener('keypress', resetIdleTimer);
+        document.addEventListener('click', resetIdleTimer);
+        document.addEventListener('scroll', resetIdleTimer);    
+        if (idleTime >= maxIdleTime) {
+            logoutUser();
+        }
     }
 
     /* Log Out Stuff */
