@@ -1,3 +1,7 @@
+Here's the updated README file with the acknowledgement added:
+
+---
+
 # COMP3260: Behavioral-Based Authentication and Anomaly Detection
 
 This project implements a behavioral-based authentication system with anomaly detection for enhanced security. The goal is to protect user accounts from brute force and automated attacks using behavioral metrics such as typing speed, mouse movement, and session interactions.
@@ -67,3 +71,7 @@ This project implements a behavioral-based authentication system with anomaly de
 ## Authors
 - **Gavin Edwards**
 - **Hritwik Saini**
+
+## Acknowledgement
+This project utilized ChatGPT for assistance with formatting this README, troubleshooting JavaScript code, and as a supplementary tool for researching security measures and practice.
+This project also utilized Dall-E 3 for Captcha Image generation.
