@@ -77,6 +77,23 @@ const firebaseConfig = {
 - **Password Reset**: Users can reset their password if they forget it or if their account is locked.
 - **Account Unlock**: Users can unlock their account by resetting their password and signing in again.
 
+## Testing the Security Features
+
+### Behavioral Analysis
+1. **Simulate Inactivity**: To test the user score functionality, load the login page and avoid moving the mouse or pressing any keys. Observe if the CAPTCHA is triggered as expected.
+2. **CAPTCHA Trigger**: Manually reduce the `userScore` in `script.js` to simulate suspicious behavior and ensure the CAPTCHA modal appears.
+
+### IP Monitoring
+1. **Test IP Changes**: Use a VPN or manually change your IP address and attempt to log in multiple times. Verify that the account locks after 3 IP changes.
+2. **IP Change Logging**: Check the Firebase database to ensure the IP change count is incremented properly and reset after locking.
+
+### Account Locking
+1. **Account Lock Test**: Perform actions that trigger the account lock (failing CAPTCHA or changing IP frequently). Ensure the account is locked and prompts the user to reset the password.
+2. **Unlock Account**: Test the password reset and account unlock functionality to make sure the account can be accessed again after resetting the password.
+
+### Idle Time Management
+1. **Idle Logout**: Stay inactive on the `loggedIn.html` page and verify that the user is logged out after the idle time threshold is reached.
+
 ## Future Enhancements
 - Implement more advanced anomaly detection using machine learning.
 - Add support for multi-factor authentication.
@@ -89,4 +106,3 @@ const firebaseConfig = {
 ### Acknowledgements
 - This project used **ChatGPT** for troubleshooting, formatting the README, and as a Firebase function directory.
 - It also used **Dall-E 3** for image generation.
-
