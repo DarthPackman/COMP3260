@@ -162,6 +162,7 @@ function evaluateUserBehavior() {
     const timeSpent = Date.now() - startTime;
     userScore = 97;
     
+    //Evaluate mouse movement
     if (mouseMoved) {
         userScore += 10;
         if (mousePath.length > 10) {
@@ -183,7 +184,7 @@ function evaluateUserBehavior() {
         userScore -= 20; 
     }
 
-    
+    //Evaluate key press
     if (keyPressIntervals.length > 0) {
         const averageKeyPressInterval = keyPressIntervals.reduce((a, b) => a + b) / keyPressIntervals.length;
         if (averageKeyPressInterval > 150 && averageKeyPressInterval < 800) { 
@@ -195,7 +196,7 @@ function evaluateUserBehavior() {
         userScore -= 15; 
     }
 
-    
+    //Evaluate mouse click
     if (mouseClicked) {
         userScore += 10; 
         if (clickPositions.size > 3) {
@@ -207,7 +208,7 @@ function evaluateUserBehavior() {
         userScore -= 20; 
     }
 
-    
+    //Evaluate time spent
     if (timeSpent >= 3000 && timeSpent <= 15000) { 
         userScore += 10; 
     } else if (timeSpent < 3000) {
@@ -216,7 +217,7 @@ function evaluateUserBehavior() {
         userScore -= 15; 
     }
 
-
+    //Evaluate page scroll
     if (pageScrolled) {
         userScore += 10; 
         if (scrollDepth > 50) {
@@ -233,12 +234,14 @@ function evaluateUserBehavior() {
         userScore -= 15; 
     }
 
+    //Evaluate window focus changes
     if (windowFocusChanges > 0) {
         userScore += 3; 
     } else {
         userScore -= 10; 
     }
-
+    
+    //Evaluate behavior
     if (userScore <= 60) { 
         captchaTrigger = true;
     }else{
