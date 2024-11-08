@@ -39,6 +39,7 @@ const maxIdleTime = 5;
 
 /* ----------------------------------------------------------------------------- UTILITY FUNCTIONS --------------------------------------------------------------------- */
 
+//IP address fetch function
 async function fetchIPAddress() {
     try {
         const response = await fetch('https://api.ipify.org?format=json');
@@ -50,10 +51,12 @@ async function fetchIPAddress() {
     }
 }
 
+//Idle timer functions
 function resetIdleTimer() {
     idleTime = 0;
 }
 
+//Behavior evaluation function
 function evaluateUserBehavior() {
     // Your behavior evaluation logic here
     console.log("Evaluating user behavior...");
@@ -61,9 +64,6 @@ function evaluateUserBehavior() {
 
 // Start calling evaluateUserBehavior every 1000ms
 setInterval(evaluateUserBehavior, 500);
-
-
-/* ----------------------------------------------------------------------------- AUTHENTICATION FUNCTIONS ------------------------------------------------------------- */
 
 /* ----------------------------------------------------------------------------- AUTHENTICATION FUNCTIONS ------------------------------------------------------------- */
 
@@ -158,6 +158,7 @@ function displayUserData() {
 
 /* ----------------------------------------------------------------------------- SECURITY FUNCTIONS ------------------------------------------------------------------- */
 
+// evaluateUserBehavior function
 function evaluateUserBehavior() {
     const timeSpent = Date.now() - startTime;
     userScore = 97;
@@ -251,15 +252,17 @@ function evaluateUserBehavior() {
 }
 
 
-
+// showCaptchaModal function
 function showCaptchaModal() {
     document.getElementById("captchaModal").style.display = "flex";
 }
 
+// closeCaptchaModal function
 function closeCaptchaModal() {
     document.getElementById("captchaModal").style.display = "none";
 }
 
+// validateCaptchaSelection function
 function validateCaptchaSelection() {
     const selectedOption = document.querySelector('input[name="captchaOption"]:checked');
     const captchaErrorMessage = document.getElementById("captchaErrorMessage");
@@ -276,6 +279,7 @@ function validateCaptchaSelection() {
     }
 }
 
+// IP Address Changed Logout function
 async function IPAddressChangedLogOut() {
     const currentIPAddress = await fetchIPAddress();
     const user = auth.currentUser;
@@ -295,6 +299,7 @@ async function IPAddressChangedLogOut() {
     }
 }
 
+// Lock Account function
 async function lockAccount() {
     const user = auth.currentUser;
     if (user) {
@@ -307,6 +312,7 @@ async function lockAccount() {
     }
 }
 
+// Reset Password function
 async function resetPassword() {
     const email = document.getElementById('username').value;
     if (!email) {
@@ -322,6 +328,7 @@ async function resetPassword() {
     }
 }
 
+// Unlock Account function
 async function unlockAccount() {
     const email = document.getElementById('username').value;
     const password = document.getElementById('password').value;
@@ -343,6 +350,7 @@ async function unlockAccount() {
 
 /* ----------------------------------------------------------------------------- CAPTCHA FUNCTIONS ------------------------------------------------------------------- */
 
+// Captcha images
 const images1 = [
     { src: 'image1.jpg', correct: false },
     { src: 'image2.jpg', correct: false },
@@ -365,6 +373,7 @@ const imgStack = [images1, images2, images3];
 let randomIndex = Math.floor(Math.random() * imgStack.length);
 let randomImages = imgStack[randomIndex];
 
+// moveCorrectImage function
 function moveCorrectImage(images) {
     const ImageIndex = 0;
     const randomIdx = Math.floor(Math.random() * images.length);
@@ -372,6 +381,7 @@ function moveCorrectImage(images) {
     return images;
 }
 
+// loadImages function
 function loadImages() {
     const updatedImages = moveCorrectImage(randomImages);
     const imageElements = document.querySelectorAll('.image-container img');
