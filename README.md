@@ -10,8 +10,15 @@ This project implements a comprehensive security system for web applications, fo
 - **Log Out**: Users can securely log out, and session data is cleared.
 
 ### Security Measures
-- **Behavioral Analysis**: 
-  - **User Score**: Monitors user behavior (mouse movement, keyboard usage, and time spent) to calculate a user score. If the score drops below a certain threshold, a CAPTCHA is triggered.
+- **Behavioral Analysis**:
+  - **User Score**: An advanced system evaluates user behavior in real-time, considering various factors such as:
+    - **Mouse Movement**: Tracks speed and movement patterns. Excessively fast or irregular mouse movements decrease the user score.
+    - **Keyboard Usage**: Monitors typing intervals to detect suspicious activity. Unusual patterns or a lack of keystrokes lower the score.
+    - **Mouse Clicks**: Evaluates the number of unique click positions and adjusts the score based on frequency and variety.
+    - **Time Spent**: Ensures that the user spends an appropriate amount of time on the page. Too little or too much time affects the score.
+    - **Page Scrolling**: Analyzes scroll depth and intervals. Erratic scrolling patterns can lower the score.
+    - **Window Focus Changes**: Detects if the user frequently switches focus from the page, impacting the score.
+  - If the score drops below a certain threshold (e.g., 60), a CAPTCHA is triggered.
 - **CAPTCHA Validation**: A CAPTCHA modal is displayed if suspicious activity is detected. Users must select the correct image to proceed.
 - **IP Monitoring**: Logs the user's IP address and detects changes between sessions. If the IP address changes too frequently, the account is locked.
 - **Account Locking**: Accounts are locked if security triggers exceed thresholds, requiring a password reset for unlocking.
@@ -66,8 +73,14 @@ const firebaseConfig = {
 ## Detailed Functionality
 
 ### Behavioral Analysis
-- **User Score Evaluation**: Deducts points based on inactivity and unusual behavior. If the score drops below 50, a CAPTCHA is triggered.
-- **CAPTCHA**: An image-based CAPTCHA is shown. Users must select the most realistic image to proceed.
+- **User Score Evaluation**: 
+  - **Mouse Movement**: Evaluates the speed and direction of movements, lowering the score if movements are erratic or too fast.
+  - **Keyboard Usage**: Analyzes typing speed and intervals between key presses. Normal typing patterns increase the score, while irregularities lower it.
+  - **Mouse Clicks**: Adjusts the score based on the variety and frequency of clicks.
+  - **Time Spent**: Checks if the user spends a reasonable amount of time on the page.
+  - **Page Scrolling**: Assesses scroll depth and the regularity of scroll actions.
+  - **Window Focus**: Penalizes the score if the user frequently changes window focus.
+- **CAPTCHA**: Triggered if the user score drops too low. Users must complete an image-based CAPTCHA to continue.
 
 ### Account Locking
 - **CAPTCHA Trigger Count**: If a user fails the CAPTCHA 3 times, their account is locked.
@@ -80,7 +93,9 @@ const firebaseConfig = {
 ## Testing the Security Features
 
 ### Behavioral Analysis
-1. **CAPTCHA Trigger**: Manually reduce the `userScore` in `script.js` to simulate suspicious behavior and ensure the CAPTCHA modal appears.
+1. **Simulate Suspicious Behavior**: 
+   - Test the mouse movement, keyboard usage, and other behaviors to see how the user score adjusts.
+   - Ensure that the CAPTCHA modal appears when the score drops below the set threshold.
 
 ### IP Monitoring
 1. **Test IP Changes**: Use a VPN or manually change your IP address and attempt to log in multiple times. Verify that the account locks after 3 IP changes.
@@ -103,5 +118,5 @@ const firebaseConfig = {
 - **Hritwik Saini**
 
 ### Acknowledgements
-- This project used **ChatGPT** for html generation, formatting the README, and as a Firebase function directory.
+- This project used **ChatGPT** for HTML generation, formatting the README, and as a Firebase function directory.
 - It also used **Dall-E 3** for image generation.
