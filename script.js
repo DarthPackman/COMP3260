@@ -18,11 +18,22 @@ const db = firebase.database();
 
 /* ----------------------------------------------------------------------------- GLOBAL VARIABLES ----------------------------------------------------------------------- */
 
-let userScore = 100;
 let mouseMoved = false;
+let mousePath = [];
 let keyPressed = false;
+let mouseClicked = false;
+let uniqueKeysPressed = new Set();
+let clickPositions = new Set();
+let pageScrolled = false;
 let captchaTrigger = false;
-const startTime = Date.now();
+let scrollDepth = 0;
+let startTime = Date.now();
+let userScore = 100; 
+let keyPressIntervals = [];
+let lastKeyPressTime = 0;
+let scrollIntervals = [];
+let lastScrollTime = 0;
+let windowFocusChanges = 0;
 let idleTime = 0;
 const maxIdleTime = 5;
 
@@ -42,6 +53,15 @@ async function fetchIPAddress() {
 function resetIdleTimer() {
     idleTime = 0;
 }
+
+function evaluateUserBehavior() {
+    // Your behavior evaluation logic here
+    console.log("Evaluating user behavior...");
+}
+
+// Start calling evaluateUserBehavior every 1000ms
+setInterval(evaluateUserBehavior, 500);
+
 
 /* ----------------------------------------------------------------------------- AUTHENTICATION FUNCTIONS ------------------------------------------------------------- */
 
@@ -140,13 +160,94 @@ function displayUserData() {
 
 function evaluateUserBehavior() {
     const timeSpent = Date.now() - startTime;
-    if (!mouseMoved) userScore -= 25;
-    if (!keyPressed) userScore -= 25;
-    if (timeSpent < 3000) userScore -= 25;
-    if (userScore <= 50) {
-        captchaTrigger = true;
+    userScore = 97;
+    
+    if (mouseMoved) {
+        userScore += 10;
+        if (mousePath.length > 10) {
+            userScore += 5; 
+        }
+
+        const speedThreshold = 1.5 / window.devicePixelRatio;
+        let highSpeedCount = 0;
+        for (let i = 1; i < mousePath.length; i++) {
+            if (mousePath[i].speed && mousePath[i].speed > speedThreshold) {
+                highSpeedCount++;
+            }
+        }
+
+        if (highSpeedCount > mousePath.length * 0.15) { 
+            userScore -= 20;
+        }
+    } else {
+        userScore -= 20; 
     }
+
+    
+    if (keyPressIntervals.length > 0) {
+        const averageKeyPressInterval = keyPressIntervals.reduce((a, b) => a + b) / keyPressIntervals.length;
+        if (averageKeyPressInterval > 150 && averageKeyPressInterval < 800) { 
+            userScore += 5; 
+        } else {
+            userScore -= 20; 
+        }
+    } else {
+        userScore -= 15; 
+    }
+
+    
+    if (mouseClicked) {
+        userScore += 10; 
+        if (clickPositions.size > 3) {
+            userScore += 5; 
+        } else {
+            userScore -= 10; 
+        }
+    } else {
+        userScore -= 20; 
+    }
+
+    
+    if (timeSpent >= 3000 && timeSpent <= 15000) { 
+        userScore += 10; 
+    } else if (timeSpent < 3000) {
+        userScore -= 20; 
+    } else {
+        userScore -= 15; 
+    }
+
+
+    if (pageScrolled) {
+        userScore += 10; 
+        if (scrollDepth > 50) {
+            userScore += 5; 
+        }
+        if (scrollIntervals.length > 0) {
+            const averageScrollInterval = scrollIntervals.reduce((a, b) => a + b) / scrollIntervals.length;
+            if (averageScrollInterval > 700) { 
+                userScore += 5; 
+                userScore -= 10; 
+            }
+        }
+    } else {
+        userScore -= 15; 
+    }
+
+    if (windowFocusChanges > 0) {
+        userScore += 3; 
+    } else {
+        userScore -= 10; 
+    }
+
+    if (userScore <= 60) { 
+        captchaTrigger = true;
+    }else{
+        captchaTrigger = false;
+    }
+    console.log('User score:', userScore);
 }
+
+
 
 function showCaptchaModal() {
     document.getElementById("captchaModal").style.display = "flex";
@@ -289,9 +390,48 @@ function loadImages() {
 loadImages();
 
 /* ----------------------------------------------------------------------------- EVENT LISTENERS -------------------------------------------------------------------- */
+window.addEventListener('focus', () => { windowFocusChanges += 1; });
+window.addEventListener('blur', () => { windowFocusChanges += 1; });
+document.addEventListener('mousemove', (event) => {
+    mouseMoved = true;
 
-document.addEventListener('mousemove', () => { mouseMoved = true; });
-document.addEventListener('keypress', () => { keyPressed = true; });
+    const currentTime = Date.now();
+    const currentPosition = { x: event.clientX, y: event.clientY, time: currentTime };
+
+    if (mousePath.length > 0) {
+        const lastPosition = mousePath[mousePath.length - 1];
+        const distance = Math.sqrt(Math.pow(currentPosition.x - lastPosition.x, 2) + Math.pow(currentPosition.y - lastPosition.y, 2));
+        const timeDiff = currentTime - lastPosition.time;
+
+        if (timeDiff > 0) {
+            const normalizedDistance = distance / window.devicePixelRatio; 
+            currentPosition.speed = normalizedDistance / timeDiff;
+        }
+    }
+
+    mousePath.push(currentPosition);
+});
+document.addEventListener('keypress', (event) => {
+    keyPressed = true;
+    uniqueKeysPressed.add(event.key);
+    const currentTime = Date.now();
+    if (lastKeyPressTime) {
+        keyPressIntervals.push(currentTime - lastKeyPressTime);
+    }
+    lastKeyPressTime = currentTime;
+});
+document.addEventListener('scroll', () => {
+    pageScrolled = true;
+    const currentScrollDepth = (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100;
+    scrollDepth = Math.max(scrollDepth, currentScrollDepth);
+
+    const currentTime = Date.now();
+    if (lastScrollTime) {
+        scrollIntervals.push(currentTime - lastScrollTime);
+    }
+    lastScrollTime = currentTime;
+});
+document.addEventListener('click', () => { mouseClicked = true; });
 
 document.addEventListener("DOMContentLoaded", function() {
     const signupForm = document.getElementById('signupForm');
