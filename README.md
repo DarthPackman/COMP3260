@@ -103,5 +103,5 @@ const firebaseConfig = {
 - **Hritwik Saini**
 
 ### Acknowledgements
-- This project used **ChatGPT** for troubleshooting, formatting the README, and as a Firebase function directory.
+- This project used **ChatGPT** for html generation, formatting the README, and as a Firebase function directory.
 - It also used **Dall-E 3** for image generation.
