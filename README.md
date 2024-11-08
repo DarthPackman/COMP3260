@@ -47,7 +47,15 @@ const firebaseConfig = {
 1. Clone the repository.
 2. Install and configure Firebase in your project.
 3. Replace the Firebase configuration object in `script.js` with your Firebase project details.
-4. Open `index.html` in your browser to use the system.
+
+### Running the Project
+1. **Activate the Local Server**:
+   - Open your terminal.
+   - Navigate to the project directory.
+   - Start a simple HTTP server to serve the files. You can use Python's built-in server:
+     - For Python 3: `python -m http.server 8000`
+     - For Python 2: `python -m SimpleHTTPServer 8000`
+   - Your site will be accessible at `http://localhost:8000`.
 
 ### User Flow
 1. **Sign Up**: Create a new account. The system tracks and stores the user's email, IP address, and security metrics.
@@ -79,6 +87,6 @@ const firebaseConfig = {
 - **Hritwik Saini**
 
 ### Acknowledgements
-- This project used **ChatGPT** for troubleshooting, formatting the README, and as a firebase function directory.
+- This project used **ChatGPT** for troubleshooting, formatting the README, and as a Firebase function directory.
 - It also used **Dall-E 3** for image generation.
 
