@@ -1,73 +1,88 @@
-# COMP3260: Behavioral-Based Authentication and Anomaly Detection
+Here's an updated README file that reflects the changes and additions to your codebase:
 
-This project implements a behavioral-based authentication system with anomaly detection for enhanced security. The goal is to protect user accounts from brute force and automated attacks using behavioral metrics such as typing speed, mouse movement, and session interactions.
+---
+
+# Behavioral-Based Authentication and Anomaly Detection System
+
+This project implements a comprehensive security system for web applications, focusing on behavioral-based authentication and anomaly detection. It leverages Firebase for user authentication and real-time database management, alongside custom security measures based on user behavior.
 
 ## Features
-1. **User Authentication**:
-   - **Sign Up**: Allows new users to register with an email and password.
-   - **Log In**: Authenticates existing users and checks for security measures.
-   - **Log Out**: Safely logs out users and redirects them to the homepage.
 
-2. **Behavioral Metrics**:
-   - **Typing Speed and Mouse Movement**: Measures user behavior to detect anomalies.
-   - **IP Address Monitoring**: Logs and tracks IP changes to identify suspicious activity.
-
-3. **Security Measures**:
-   - **Account Locking**: Locks an account after detecting suspicious activity.
-   - **CAPTCHA Verification**: Triggers a CAPTCHA test when abnormal behavior is detected.
-   - **Password Reset**: Allows users to reset their passwords if the account is locked.
-
-4. **Idle Timer**:
-   - Monitors user activity and logs out after a period of inactivity.
-
-## File Structure
-- `index.html`: The main login page.
-- `loggedIn.html`: The page displayed after successful login.
-- `signUp.html`: The sign-up page for new users.
-- `script.js`: JavaScript code for authentication, security measures, and user behavior tracking.
-- `styles.css`: Stylesheet for the web pages.
-
-## Setup Instructions
-1. Clone the repository to your local machine.
-2. Make sure you have Firebase configured with your project.
-3. Update the `firebaseConfig` object in `script.js` with your Firebase project details.
-4. Serve the project using a local server or host it on a web server.
-
-## Firebase Configuration
-- This project uses Firebase for authentication and real-time database functionality.
-- Ensure your Firebase project is properly configured, and the Realtime Database rules are set up to allow read/write access for authenticated users.
-
-## Detailed Functionality
-### Authentication
-- **Sign Up**: Registers a new user and stores their email, IP address, and last login timestamp.
-- **Log In**: Verifies user credentials and checks for any account locks before granting access.
-- **Log Out**: Logs out the user and clears the session.
+### User Authentication
+- **Sign Up**: Users can create a new account using their email and password. The system initializes security metrics for tracking.
+- **Log In**: Users are authenticated with their email and password. Security measures such as CAPTCHA validation and IP monitoring are employed.
+- **Log Out**: Users can securely log out, and session data is cleared.
 
 ### Security Measures
-- **Behavioral Detection**: Uses metrics like typing speed, mouse movement, and time spent on the page to evaluate suspicious behavior.
-- **CAPTCHA**: A modal CAPTCHA test is triggered if suspicious behavior is detected.
-- **Account Lock**: Accounts are locked if multiple security triggers are activated, requiring a password reset to unlock.
+- **Behavioral Analysis**: 
+  - **User Score**: Monitors user behavior (mouse movement, keyboard usage, and time spent) to calculate a user score. If the score drops below a certain threshold, a CAPTCHA is triggered.
+- **CAPTCHA Validation**: A CAPTCHA modal is displayed if suspicious activity is detected. Users must select the correct image to proceed.
+- **IP Monitoring**: Logs the user's IP address and detects changes between sessions. If the IP address changes too frequently, the account is locked.
+- **Account Locking**: Accounts are locked if security triggers exceed thresholds, requiring a password reset for unlocking.
 
-### IP Monitoring
-- Logs the user's IP address and compares it to previous sessions. If a significant change is detected, the account is flagged.
+### Idle Time Management
+- **Idle Timer**: Monitors user activity and logs out users after a period of inactivity to prevent unauthorized access.
 
-### Idle Timer
-- Logs out the user after a specified period of inactivity to ensure session security.
+## Firebase Configuration
+The project uses Firebase for authentication and database management. Ensure you have Firebase set up with the following details:
+```javascript
+const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_AUTH_DOMAIN",
+    databaseURL: "YOUR_DATABASE_URL",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_STORAGE_BUCKET",
+    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+    appId: "YOUR_APP_ID",
+    measurementId: "YOUR_MEASUREMENT_ID"
+};
+```
 
-## Usage
-1. **Sign Up**: Register with a valid email and password.
-2. **Log In**: Use your credentials to log in. If your behavior triggers security measures, you'll need to pass a CAPTCHA or reset your password.
-3. **Idle Timer**: Stay active on the page to avoid automatic logout due to inactivity.
+## File Structure
+- **`index.html`**: The main login page.
+- **`signUp.html`**: The sign-up page for new users.
+- **`loggedIn.html`**: The page shown after a successful login.
+- **`styles.css`**: Stylesheet for the web pages.
+- **`script.js`**: Main JavaScript file containing all the logic for authentication, behavior analysis, and security measures.
+
+## Usage Instructions
+
+### Setup
+1. Clone the repository.
+2. Install and configure Firebase in your project.
+3. Replace the Firebase configuration object in `script.js` with your Firebase project details.
+4. Open `index.html` in your browser to use the system.
+
+### User Flow
+1. **Sign Up**: Create a new account. The system tracks and stores the user's email, IP address, and security metrics.
+2. **Log In**: Enter your credentials. If any security triggers are activated, you may be required to complete a CAPTCHA.
+3. **CAPTCHA Modal**: If shown, select the correct image to verify that you are human.
+4. **Inactivity Management**: Stay active to avoid automatic logout.
+
+## Detailed Functionality
+
+### Behavioral Analysis
+- **User Score Evaluation**: Deducts points based on inactivity and unusual behavior. If the score drops below 50, a CAPTCHA is triggered.
+- **CAPTCHA**: An image-based CAPTCHA is shown. Users must select the most realistic image to proceed.
+
+### Account Locking
+- **CAPTCHA Trigger Count**: If a user fails the CAPTCHA 3 times, their account is locked.
+- **IP Change Count**: If a user's IP address changes more than once, the account is also locked.
+
+## Security Functions
+- **Password Reset**: Users can reset their password if they forget it or if their account is locked.
+- **Account Unlock**: Users can unlock their account by resetting their password and signing in again.
 
 ## Future Enhancements
-- Implement additional behavioral metrics for better anomaly detection.
-- Integrate multi-factor authentication (MFA) as a secondary layer of security.
-- Explore using machine learning models to detect more sophisticated patterns of anomalous behavior.
+- Implement more advanced anomaly detection using machine learning.
+- Add support for multi-factor authentication.
+- Improve the CAPTCHA system for better security.
 
 ## Authors
 - **Gavin Edwards**
 - **Hritwik Saini**
 
-## Acknowledgement
-This project utilized ChatGPT for assistance with formatting this README, troubleshooting JavaScript code, and as a supplementary tool for researching security measures and practice.
-This project also utilized Dall-E 3 for Captcha Image generation.
+### Acknowledgements
+This project used **ChatGPT** for troubleshooting, formatting the README, and as a firebase function directory.
+It also used **Dall-E 3** for image generation.
+
