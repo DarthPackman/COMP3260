@@ -94,7 +94,7 @@ const firebaseConfig = {
 
 ### Behavioral Analysis
 1. **Simulate Suspicious Behavior**: 
-   - Test the mouse movement, keyboard usage, and other behaviors to see how the user score adjusts.
+   - Test the mouse movement, keyboard usage, and other behaviors to see how the user score adjusts in the F12 Developer menu.
    - Ensure that the CAPTCHA modal appears when the score drops below the set threshold.
 
 ### IP Monitoring
