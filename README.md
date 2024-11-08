@@ -65,8 +65,8 @@ This project implements a behavioral-based authentication system with anomaly de
 - Explore using machine learning models to detect more sophisticated patterns of anomalous behavior.
 
 ## Authors
-- **Gavin Edwards**: Responsible for frontend development, JS implementation for behavioral detection, and Firebase integration.
-- **Hritwik Saini**: Focused on database management, account locking mechanisms, and CAPTCHA system implementation.
+- **Gavin Edwards**
+- **Hritwik Saini**
 
 ## License
 This project is licensed under the MIT License. See `LICENSE` for more details.
