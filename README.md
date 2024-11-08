@@ -1,7 +1,3 @@
-Here's an updated README file that reflects the changes and additions to your codebase:
-
----
-
 # Behavioral-Based Authentication and Anomaly Detection System
 
 This project implements a comprehensive security system for web applications, focusing on behavioral-based authentication and anomaly detection. It leverages Firebase for user authentication and real-time database management, alongside custom security measures based on user behavior.
