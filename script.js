@@ -136,7 +136,7 @@ function validateCaptchaSelection() {
     const captchaErrorMessage = document.getElementById("captchaErrorMessage");
 
     if (selectedOption) {
-        if (selectedOption.value === "3") { 
+        if (selectedOption.dataset.correct === "true") {
             closeCaptchaModal();
             loginUser(document.getElementById('username').value, document.getElementById('password').value);
         } else {
@@ -146,6 +146,72 @@ function validateCaptchaSelection() {
         captchaErrorMessage.textContent = "Please select an option.";
     }
 }
+
+
+
+const images1 = [
+    { src: 'image1.jpg', correct: false },
+    { src: 'image2.jpg', correct: false },
+    { src: 'image3.jpg', correct: true }, 
+    { src: 'image4.jpg', correct: false }
+];
+
+const images2 = [
+    { src: 'image5.jpg', correct: false },
+    { src: 'image6.jpg', correct: false },
+    { src: 'image7.jpg', correct: false }, 
+    { src: 'image8.jpg', correct: true } 
+];
+
+const images3 = [
+    { src: 'image9.jpg', correct: true }, 
+    { src: 'image10.jpg', correct: false },
+    { src: 'image11.jpg', correct: false }, 
+    { src: 'image12.jpg', correct: false } 
+];
+
+
+const imgStack = [images1, images2, images3];
+randomIndex = Math.floor(Math.random() * imgStack.length);
+randomImages = imgStack[randomIndex];
+function moveCorrectImage(randomImages) {
+    const ImageIndex = 0;
+    const randomIndex = Math.floor(Math.random() * randomImages.length);
+
+    // Swap the correct image with the random index
+    [randomImages[ImageIndex], randomImages[randomIndex]] = [randomImages[randomIndex], randomImages[ImageIndex]];
+
+    return randomImages;
+}
+
+function loadImages() {
+    // Shuffle the correct image's position
+    const updatedImages = moveCorrectImage(randomImages);
+
+    // Get all image elements in the modal
+    const imageElements = document.querySelectorAll('.image-container img');
+    const optionLabels = document.querySelectorAll('.captcha-options input');
+
+    // Load the images and update radio button values
+    imageElements.forEach((imgElement, index) => {
+        imgElement.src = updatedImages[index].src;
+        imgElement.dataset.correct = updatedImages[index].correct; // Store whether this is the correct image
+    });
+
+    // Update the radio buttons and mark the correct option
+    optionLabels.forEach((input, index) => {
+        input.value = index + 1;
+        if (updatedImages[index].correct) {
+            input.dataset.correct = "true"; // Mark the correct radio button
+        } else {
+            input.removeAttribute('data-correct');
+        }
+    });
+}
+
+loadImages();
+
+
 
 const evaluateUserBehavior = () => {
     const timeSpent = Date.now() - startTime;
