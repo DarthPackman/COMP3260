@@ -112,6 +112,7 @@ const firebaseConfig = {
 - Implement more advanced anomaly detection using machine learning.
 - Add support for multi-factor authentication.
 - Improve the CAPTCHA system for better security.
+- Add in page navigation to the user score calculation.
 
 ## Authors
 - **Gavin Edwards**
