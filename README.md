@@ -80,8 +80,7 @@ const firebaseConfig = {
 ## Testing the Security Features
 
 ### Behavioral Analysis
-1. **Simulate Inactivity**: To test the user score functionality, load the login page and avoid moving the mouse or pressing any keys. Observe if the CAPTCHA is triggered as expected.
-2. **CAPTCHA Trigger**: Manually reduce the `userScore` in `script.js` to simulate suspicious behavior and ensure the CAPTCHA modal appears.
+1. **CAPTCHA Trigger**: Manually reduce the `userScore` in `script.js` to simulate suspicious behavior and ensure the CAPTCHA modal appears.
 
 ### IP Monitoring
 1. **Test IP Changes**: Use a VPN or manually change your IP address and attempt to log in multiple times. Verify that the account locks after 3 IP changes.
